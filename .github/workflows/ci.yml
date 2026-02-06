@@ -1,0 +1,55 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build container image
+        run: podman build -t pagecap:test .
+
+      - name: Start container
+        run: |
+          podman run -d --name pagecap -p 8080:8080 pagecap:test
+          # Wait for the server to be ready
+          for i in $(seq 1 30); do
+            if curl -sf http://localhost:8080/ > /dev/null 2>&1; then
+              echo "Server is ready"
+              break
+            fi
+            echo "Waiting for server... ($i)"
+            sleep 1
+          done
+          if ! curl -sf http://localhost:8080/ > /dev/null 2>&1; then
+            echo "Server failed to start"
+            podman logs pagecap
+            exit 1
+          fi
+
+      - name: Test root endpoint returns UI
+        run: |
+          curl -sf http://localhost:8080/ | grep -q "PageCap"
+
+      - name: Test screenshot capture
+        run: |
+          status=$(curl -s -o /tmp/screenshot.png -w "%{http_code}" \
+            "http://localhost:8080/?url=https://example.com&width=640&height=480")
+          echo "HTTP status: $status"
+          test "$status" = "200"
+          # Verify it's a valid PNG (starts with PNG magic bytes)
+          file /tmp/screenshot.png | grep -q "PNG image data"
+
+      - name: Print container logs
+        if: always()
+        run: podman logs pagecap
+
+      - name: Stop container
+        if: always()
+        run: podman rm -f pagecap
