@@ -1,5 +1,7 @@
 # PageCap
 
+[![CI](https://github.com/kubahorak/pagecap/actions/workflows/ci.yml/badge.svg)](https://github.com/kubahorak/pagecap/actions/workflows/ci.yml)
+
 Website screenshot service for Docker.
 Uses [Playwright](https://playwright.dev/) with headless Chromium to capture screenshots via an HTTP API.
 
