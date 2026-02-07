@@ -3,7 +3,7 @@
 [![CI](https://github.com/kubahorak/pagecap/actions/workflows/ci.yml/badge.svg)](https://github.com/kubahorak/pagecap/actions/workflows/ci.yml)
 
 Website screenshot service for Docker.
-Uses [Playwright](https://playwright.dev/) with headless Chromium to capture screenshots via an HTTP API.
+Uses [Playwright](https://playwright.dev/) with headless WebKit to capture screenshots via an HTTP API.
 
 Inspired by [Manet](https://github.com/vbauer/manet).
 
@@ -19,7 +19,7 @@ docker run -p 8080:8080 pagecap
 ### Local
 
 ```bash
-go run github.com/playwright-community/playwright-go/cmd/playwright install --with-deps chromium
+go run github.com/playwright-community/playwright-go/cmd/playwright install --with-deps webkit
 go run .
 ```
 
